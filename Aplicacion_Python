@@ -1,0 +1,29 @@
+import json
+import urllib.parse
+import requests
+main_api = "https://www.mapquestapi.com/directions/v2/route?"
+key = "pS5oSQj9DElHOQRs8c2fJUjgVuQCCc8n"
+while True:
+    origin = input("Ingrese ciudad de origen: ")
+    if origin == 'S' or origin == 'salida':
+        break
+    destination = input("Ingrese ciudad de destino: ")
+    if destination == 'S' or destination == 'salida':
+        break
+    url = main_api + urllib.parse.urlencode({"key": key, "from":origin, "to":destination})
+    json_data = requests.get(url).json()
+    status_code = json_data["info"]["statuscode"]
+    if status_code == 0:
+        trip_duration = json_data["route"]["formattedTime"]
+        distance = json_data["route"]["distance"] * 1.61
+        print("=============================================")
+        print(f"Información del viaje desde {origin.capitalize()} hasta {destination.capitalize()}")
+        print(f"duración del viaje en vehiculo: {trip_duration}")
+        print("Distancia: " + str("{:.1f}".format(distance) + "Km"))
+        print("=============================================")
+        print("Indicacione del trayecto")
+
+        for each in json_data["route"]["legs"][0]["maneuvers"]:
+            distance_remaining = distance - each["distance"] * 1.61
+            print(each["narrative"] + " (" + str("{:.1f}".format(distance_remaining)) + "km para llegar a destino)")
+            distance = distance_remaining
